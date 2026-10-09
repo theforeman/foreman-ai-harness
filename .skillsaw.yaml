@@ -151,6 +151,8 @@ rules:
   context-budget:
     enabled: auto
     severity: warning
+    exclude:
+      - "foreman-dev-skills/skills/pf5-upgrade/SKILL.md"
     # limits:
     #   agents-md:
     #     warn: 6000
