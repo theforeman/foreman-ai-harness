@@ -33,9 +33,11 @@ If the repository contains a `RELEASE.md`, read it first and honor any conventio
 
 Read the current version from `lib/<plugin_name>/version.rb` and recent commits/changelog to determine what changed since the last release. Apply versioning rules (see below) to propose the next version.
 
-**STOP: Present the suggested version to the user and wait for explicit approval before proceeding.**
+For every major or minor version bump, create a release branch for the new major/minor line. Do this even when the release is made from the default branch; the person making the version bump is responsible for creating the branch. Use the repository's existing convention, commonly `<major>.<minor>-stable`. For example, `foreman_openscap` uses both `11.1-stable` and `12.0-stable`; retain the `.0` when the minor version is zero. Ensure the bump commit and tag are on that branch. Patch releases stay on the existing release branch and do not require a new branch.
 
-### 1b. Bump, Tag, Push, and Clean Up
+**STOP: Present the suggested version, proposed release branch, and tag to the user and wait for explicit approval before proceeding.**
+
+### 1b. Bump, Branch, Tag, Push, and Clean Up
 
 ```bash
 # Working inside /tmp/<plugin_name>-release
@@ -49,9 +51,17 @@ git tag | sort -V | tail -5
 
 git add lib/<plugin_name>/version.rb
 git commit -m "Bump version to x.y.z"
+
+# For a major/minor bump, create the release branch before tagging.
+# Match the repository's existing naming convention, e.g.:
+# foreman_openscap uses 11.1-stable and 12.0-stable
+git switch -c <major>.<minor>-stable
+
 git tag -a <tag> -m "Release <tag>"   # e.g. v1.2.3 or 1.2.3 depending on the repo convention; always use annotated tags (-a)
-# Push HEAD and the annotated tag together; --follow-tags pushes annotated tags reachable from the pushed commits
-git push --follow-tags <upstream-remote> HEAD:<default-branch>
+# Push the branch and annotated tag together. For a major/minor bump, use <release-branch>
+# (for example, 12.0-stable), not <default-branch>. For a patch release, use
+# the existing release branch instead:
+git push -u <upstream-remote> HEAD:<release-branch> --follow-tags
 
 # Remove the worktree
 cd -
